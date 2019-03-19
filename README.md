@@ -2,7 +2,7 @@
 Python metaclass for cache instance
 
 ## Installation
-```
+```Shell
 pip install git+https://github.com/ttivy/cachemeta
 ```
 
@@ -10,7 +10,7 @@ pip install git+https://github.com/ttivy/cachemeta
 
 #### Cached instance
 
-```
+```Python
 from cachemeta import DictCacheMeta
 
 class CachedDict(dict, metaclass=DictCacheMeta):
@@ -32,7 +32,7 @@ assert id(y) == id(z)
 
 #### Key customization
 
-```
+```Python
 from cachemeta import DictCacheMeta
 
 # Customized cache key
@@ -61,7 +61,7 @@ assert id(y) != id(z)
 
 #### Cache to pickle
 
-```
+```Python
 import os
 from cachemeta import PickleCacheMeta
 
