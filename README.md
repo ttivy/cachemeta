@@ -87,13 +87,13 @@ class PickledObject(metaclass=PickleCacheMeta):
 
 # The same object if created from
 # the same lower 3 digits in hex of first args
-x = PickledObject(0x000, 1)
-y = PickledObject(0x001, 2)
+x = PickledObject(0x001, 1)
+y = PickledObject(0x000, 2)
 z = PickledObject(0x1000, 3)
 # __init__ (0, 1) {}
 # __init__ (1, 2) {}
 
-# z is pickled x, but different instances
+# z is pickled y, but different instances
 assert id(x) != id(y) != id(z)
-assert (x.args, x.kwargs) == (z.args, z.kwargs)
+assert (y.args, y.kwargs) == (z.args, z.kwargs)
 ```
