@@ -1,6 +1,7 @@
 import unittest
 from unittest import mock
-from pathlib import Path
+import os
+import glob
 from cachemeta import PickleCacheMeta
 
 
@@ -20,15 +21,18 @@ class TestPickle(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        Path(cls.TEMP_DIR).mkdir(exist_ok=True)
+        if not os.path.isdir(cls.TEMP_DIR):
+            os.mkdir(cls.TEMP_DIR)
+        os.chdir(cls.TEMP_DIR)
 
     @classmethod
     def tearDownClass(cls):
-        Path(cls.TEMP_DIR).rmdir()
+        os.chdir('..')
+        os.rmdir(cls.TEMP_DIR)
 
     def tearDown(self):
-        for cache_file in Path(self.TEMP_DIR).glob('*.pickle'):
-            cache_file.unlink()
+        for cache_file in glob.glob('*.pickle'):
+            os.remove(cache_file)
 
     def test_cache_blank(self):
         c = Cache()
