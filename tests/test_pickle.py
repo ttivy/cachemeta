@@ -3,14 +3,8 @@ from unittest import mock
 from pathlib import Path
 from cachemeta import PickleCacheMeta
 
-TEMP_DIR = './_temp'
 
-
-def path(*args, **kwargs):
-    return TEMP_DIR + '/' + PickleCacheMeta.default_path(*args, **kwargs)
-
-
-class Cache(metaclass=PickleCacheMeta, path=path):
+class Cache(metaclass=PickleCacheMeta):
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -22,17 +16,18 @@ class Cache(metaclass=PickleCacheMeta, path=path):
 
 
 class TestPickle(unittest.TestCase):
+    TEMP_DIR = './_temp'
 
     @classmethod
     def setUpClass(cls):
-        Path(TEMP_DIR).mkdir(exist_ok=True)
+        Path(cls.TEMP_DIR).mkdir(exist_ok=True)
 
     @classmethod
     def tearDownClass(cls):
-        Path(TEMP_DIR).rmdir()
+        Path(cls.TEMP_DIR).rmdir()
 
     def tearDown(self):
-        for cache_file in Path(TEMP_DIR).glob('*.pickle'):
+        for cache_file in Path(self.TEMP_DIR).glob('*.pickle'):
             cache_file.unlink()
 
     def test_cache_blank(self):

@@ -1,44 +1,39 @@
 import logging
-from typing import TypeVar, Generic, Any, Type, Callable
+from typing import TypeVar, Generic, Any, Type
 from abc import ABCMeta, abstractmethod
 
 logger = logging.getLogger(__name__)
 
 TSelf = TypeVar('TSelf', bound='AbstractCacheMeta')
-TH = TypeVar('TH')
-TI = TypeVar('TI')
+TK = TypeVar('TK')
+TV = TypeVar('TV')
 
 
-class AbstractCacheMeta(type, Generic[TH, TI], metaclass=ABCMeta):
-
-    def __new__(cls: Type[TSelf], name: str, bases: tuple, namespace: dict,
-                **kwargs: Any) -> type:
-        return super().__new__(cls, name, bases, namespace)
-
-    def __init__(self: TSelf, name: str, bases: tuple, namespace: dict,
-                 hash: Callable[..., TH]) -> None:
-        super().__init__(name, bases, namespace)
-        self._hash = hash
+class AbstractCacheMeta(type, Generic[TK, TV], metaclass=ABCMeta):
 
     @abstractmethod
-    def __getitem__(self: TSelf, hash: TH) -> TI:
+    def _getkey(self: TSelf, *args: Any, **kwargs: Any) -> TK:
         pass
 
     @abstractmethod
-    def __setitem__(self: TSelf, hash: TH, instance: TI) -> None:
+    def __getitem__(self: TSelf, key: TK) -> TV:
         pass
 
     @abstractmethod
-    def __contains__(self: TSelf, hash: TH) -> bool:
+    def __setitem__(self: TSelf, key: TK, value: TV) -> None:
         pass
 
-    def __call__(self: TSelf, *args: Any, **kwargs: Any) -> TI:
-        hash = self._hash(*args, **kwargs)
-        if hash in self:
+    @abstractmethod
+    def __contains__(self: TSelf, key: TK) -> bool:
+        pass
+
+    def __call__(self: TSelf, *args: Any, **kwargs: Any) -> TV:
+        key = self._getkey(*args, **kwargs)
+        if key in self:
             logger.debug('Cache hit')
-            instance = self[hash]
+            instance = self[key]
         else:
             logger.debug('Cache missed')
             instance = super().__call__(*args, **kwargs)
-            self[hash] = instance
+            self[key] = instance
         return instance
