@@ -35,17 +35,18 @@ assert id(y) == id(z)
 ```Python
 from cachemeta import DictCacheMeta
 
-# Customized cache key
-def key(*args, **kwargs):
-    if len(args) > 0:
-        return args[0]
-    return None
-
-class CachedObject(metaclass=DictCacheMeta, key=key):
+class CachedObject(metaclass=DictCacheMeta):
     def __init__(self, *args, **kwargs):
         print('__init__', args, kwargs)
         super().__init__()
         self.args, self.kwargs = args, kwargs
+
+    # Customized cache key
+    @classmethod
+    def _getkey(cls, *args, **kwargs):
+        if len(args) > 0:
+            return args[0]
+        return None
 
 # The same object if created from the same first args
 x = CachedObject(1, 2)
@@ -71,17 +72,18 @@ CACHE_DIR = './cache'
 if not os.path.isdir(CACHE_DIR):
     os.mkdir(CACHE_DIR)
 
-# Customized cache path
-def path(number, *args, **kwargs):
-    # Filename is lower 3 digits in hex
-    filename = ('%03x' % number)[-3:] + '.pickle'
-    return os.path.join(CACHE_DIR, filename)
-
-class PickledObject(metaclass=PickleCacheMeta, path=path):
+class PickledObject(metaclass=PickleCacheMeta):
     def __init__(self, *args, **kwargs):
         print('__init__', args, kwargs)
         super().__init__()
         self.args, self.kwargs = args, kwargs
+
+    # Customized cache path
+    @classmethod
+    def _getkey(cls, number, *args, **kwargs):
+        # Filename is lower 3 digits in hex
+        filename = ('%03x' % number)[-3:] + '.pickle'
+        return os.path.join(CACHE_DIR, filename)
 
 # The same object if created from
 # the same lower 3 digits in hex of first args
